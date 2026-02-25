@@ -1,0 +1,35 @@
+server {
+    listen 80;
+    server_name geoserver.${APP_DOMAIN}; 
+
+    location ^~ /.well-known/acme-challenge/ {
+        root ${WEBROOT_PATH};
+        try_files ${DOLLAR}uri =404;
+    }
+
+    location / {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    server_name geoserver.${APP_DOMAIN};
+
+    include /etc/nginx/snippets/ssl-${CERT_NAME}.conf;
+
+    # GeoServer Reverse Proxy
+    location ^~ /geoserver/ {
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header Host ${DOLLAR}http_host;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+        
+        proxy_pass http://${GEOSERVER_UPSTREAM}/geoserver/;
+
+        proxy_connect_timeout 7200s;
+        proxy_send_timeout 7200s;
+        proxy_read_timeout 7200s;
+    }
+
+}

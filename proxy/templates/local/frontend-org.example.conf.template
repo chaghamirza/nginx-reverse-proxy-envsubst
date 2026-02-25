@@ -1,0 +1,13 @@
+server {
+    listen 80;
+
+    server_name org.${APP_DOMAIN};
+
+
+    root ${FRONTEND_ORG_ROOT};
+    index index.html index.htm;
+
+    location / {
+        try_files ${DOLLAR}uri ${DOLLAR}uri/ /index.html;
+    }
+}

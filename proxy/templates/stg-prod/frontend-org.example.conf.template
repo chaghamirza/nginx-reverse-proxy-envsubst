@@ -1,0 +1,30 @@
+server {
+    listen 80;
+    server_name org.${APP_DOMAIN};
+
+    location ^~ /.well-known/acme-challenge/ {
+        root ${WEBROOT_PATH};
+        try_files ${DOLLAR}uri =404;
+    }
+
+    location / {
+        return 301 https://${DOLLAR}host${DOLLAR}request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+
+    server_name org.${APP_DOMAIN};
+
+    include /etc/nginx/snippets/ssl-${CERT_NAME}.conf;
+
+    root ${FRONTEND_ORG_ROOT};
+    index index.html index.htm;
+
+    # include /etc/nginx/snippets/security_headers.conf;
+
+    location / {
+        try_files ${DOLLAR}uri ${DOLLAR}uri/ /index.html;
+    }
+}

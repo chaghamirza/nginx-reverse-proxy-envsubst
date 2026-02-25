@@ -1,0 +1,36 @@
+services:
+
+  proxy:
+    build:
+      context: ./proxy
+    restart: always
+    mem_limit: 2g
+    cpus: 1.0
+    depends_on:
+      - api #your backend contaiiner name, for example ==> django
+    ports:
+      - '8600:8000'
+      - '80:80'
+      - "443:443"
+    environment:
+      - APP_DOMAIN=${APP_DOMAIN}
+      - GEOSERVER_UPSTREAM=${GEOSERVER_UPSTREAM}
+      - FRONTEND_ORG_ROOT=${FRONTEND_ORG_ROOT}
+      - FRONTEND_PANEL_ROOT=${FRONTEND_PANEL_ROOT}
+      - FRONTEND_ADMIN_ROOT=${FRONTEND_ADMIN_ROOT}
+      - API_HOST=${API_HOST}
+      - WS_PORT=${WS_PORT}
+      - API_PORT=${API_PORT}
+      - DOLLAR=${DOLLAR}
+      - WEBROOT_PATH=${WEBROOT_PATH}
+      - CERT_NAME=${CERT_NAME}
+    volumes:
+      #ssl certificate
+      - /var/www/certbot:${WEBROOT_PATH}
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+
+      - ./proxy/templates/stg-prod:/etc/nginx/templates
+      - static-data:/vol/static
+      - ./frontend-panel/dist:${FRONTEND_PANEL_ROOT}
+      - ./frontend-admin/dist:${FRONTEND_ADMIN_ROOT}
+      - ./frontend-org/dist:${FRONTEND_ORG_ROOT}

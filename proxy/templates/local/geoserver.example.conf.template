@@ -1,0 +1,20 @@
+server {
+    listen 80;
+
+    server_name geoserver.${APP_DOMAIN};
+
+    location ^~ /geoserver/ {
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header Host ${DOLLAR}http_host;
+        
+        proxy_set_header X-Forwarded-Proto http;
+        
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+
+        proxy_pass http://${GEOSERVER_UPSTREAM}/geoserver/;
+        
+        proxy_connect_timeout 7200s;
+        proxy_send_timeout     7200s;
+        proxy_read_timeout     7200s;
+    }
+}
